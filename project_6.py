@@ -24,7 +24,7 @@ def is_float(s):
 def p6_process_json(path, header_input, verbose=True):
     with open(path) as f:
         data = json.load(f)
-    
+
 
     slist = data['concatenation']
     start_line_index = data['header_info']['start_line_index']
@@ -40,7 +40,7 @@ def p6_process_json(path, header_input, verbose=True):
             index = key.find('_')
             if index >= 0:
                 main_key = key[index + 1:]
-                item[main_key] = value 
+                item[main_key] = value
         header_pos_temp.append(item)
 
     header_pos = []
@@ -77,7 +77,7 @@ def p6_process_json(path, header_input, verbose=True):
     print(json.dumps(header_pos, indent=2))
 
     items_all = []
-            
+
     def overlap(word_pos, header_pos):
         return word_pos[1] >= header_pos[0] and word_pos[0] <= header_pos[1]
 
@@ -87,7 +87,7 @@ def p6_process_json(path, header_input, verbose=True):
         for i, header in enumerate(header_pos):
             if overlap(word_pos, (header['x1'], header['x2'])):
                 if header['word'] != '':
-                    return i 
+                    return i
                 else:
                     unknown_cols.append(i)
 
@@ -107,7 +107,7 @@ def p6_process_json(path, header_input, verbose=True):
             'data_x2': '',
             'data_y': '',
         }
-        
+
 
     table_data = []
     last_header_index = None
@@ -126,13 +126,13 @@ def p6_process_json(path, header_input, verbose=True):
             table_item['data_x2'] = word['x2']
             table_item['data_y'] = words['y']
             table_item['header_index'] = header_index
-            
+
 
             if last_line_index is not None:
                 stop_header_index = header_index + len(header_pos) * (words['line_index'] - last_line_index)
 
                 # not consecutive header
-                if last_header_index is not None and (stop_header_index - last_header_index) > 1: 
+                if last_header_index is not None and (stop_header_index - last_header_index) > 1:
                     for i in range(last_header_index + 1, stop_header_index):
                         current_header = header_pos[i % len(header_pos)]
                         if current_header['word'] == '': continue
@@ -142,24 +142,24 @@ def p6_process_json(path, header_input, verbose=True):
                         no_data_item['header_y'] = current_header['y']
                         no_data_item['header_x1'] = current_header['x1']
                         no_data_item['header_x2'] = current_header['x2']
-                        no_data_item['line_index'] = last_line_index + (i // len(header_pos)) 
+                        no_data_item['line_index'] = last_line_index + (i // len(header_pos))
                         no_data_item['header_index'] = i % len(header_pos)
 
                         table_data.append(no_data_item)
-                    
-            
+
+
             header = header_pos[header_index]
-            last_header_index = header_index 
+            last_header_index = header_index
             last_line_index = words['line_index']
-            
+
             if header['word'] != '':
                 table_item['type'] = 'Overlap'
-                
+
             table_item['header_x1'] = header['x1']
             table_item['header_x2'] = header['x2']
             table_item['header_y'] = header['y']
             table_item['header'] = header['url'] if header['url_found'] else header['word']
-                
+
             table_data.append(table_item)
 
     # merging step
@@ -181,7 +181,7 @@ def p6_process_json(path, header_input, verbose=True):
             last_item['data_type'] = 'string'
         else:
             table_data_temp.append(last_item)
-            last_item = table_item 
+            last_item = table_item
 
     table_data_temp.append(last_item)
     table_data = table_data_temp
@@ -197,7 +197,7 @@ def p6_process_json(path, header_input, verbose=True):
             and table_item['line_index'] != '' \
             and table_item['line_index'] != current_line_index:
 
-            item['line_index'] = current_line_index 
+            item['line_index'] = current_line_index
             table_rows.append(item)
             item = {}
 
@@ -221,7 +221,7 @@ def p6_process_json(path, header_input, verbose=True):
         'table_data': table_data,
         'table_rows': table_rows,
     }
-            
+
 
     return result
 
