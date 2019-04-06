@@ -22,7 +22,7 @@ def is_float(s):
 
 
 def p6_process_json(path, header_input, verbose=True):
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         data = json.load(f)
 
 
