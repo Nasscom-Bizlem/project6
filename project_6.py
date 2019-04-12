@@ -1,5 +1,4 @@
 import json
-import requests
 import threading
 import re
 import traceback
