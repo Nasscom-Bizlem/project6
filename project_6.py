@@ -73,7 +73,7 @@ def p6_process_json(path, header_input, verbose=True):
             'y': int(header_data['y']),
         })
 
-    print(json.dumps(header_pos, indent=2))
+    if verbose: print(json.dumps(header_pos, indent=2))
 
     items_all = []
 
@@ -112,7 +112,7 @@ def p6_process_json(path, header_input, verbose=True):
     last_header_index = None
     last_line_index = None
 
-    print(start_line_index, stop_line_index)
+    if verbose: print(start_line_index, stop_line_index)
     for line_index, words in enumerate(slist[start_line_index + 1:stop_line_index]):
         for word in words['words']:
             header_index = find_header((word['x1'], word['x2']), header_pos)
