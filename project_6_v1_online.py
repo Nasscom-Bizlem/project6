@@ -57,8 +57,7 @@ def p6_process_json(path, verbose=True):
     for thread in threads: thread.start()
     for thread in threads: thread.join()
 
-    print(res)
-    return []
+    return res
 
 if __name__ == '__main__':
     print('hello world')
