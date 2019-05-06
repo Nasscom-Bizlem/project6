@@ -20,7 +20,7 @@ def allowed_file(filename, extensions):
 
 @app.route('/')
 def hello():
-    return 'Hello World Project 6'
+    return 'Hello World Project 6 v1.1.0'
 
 
 @app.route('/project6', methods=['POST'])
@@ -35,7 +35,7 @@ def project6():
         path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(path)
 
-        result = p6_process_json(path, request.form.get('header_input'))
+        result = p6_process_json(path)
 
         return jsonify(result)
 
