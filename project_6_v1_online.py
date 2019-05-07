@@ -13,8 +13,8 @@ SELECTED_LABEL = 'http://bizlem.io/PurchaseOrderProcessing#'
 
 def request_header_line(line_list, res, line_index):
     try:
-        print(line_list[line_index])
-        r = requests.post(HEADER_URL, data={ 'RawJson': line_list[line_index] })
+        print(data)
+        r = requests.post(HEADER_URL, data=data)
         res[line_index] = r.json()
     except Exception as e:
         traceback.print_exc()
@@ -28,25 +28,47 @@ def p6_process_json(path, verbose=True):
     if len(table_data) == 0: return []
 
 
-    current_line_index = table_data[0]['line_index']
-    count = 1
-    current_line = {}
-    line_list = []
-    for item in table_data[1:]:
-        if item['line_index'] == current_line_index:
+    def process_item_data(item, current_line, count):
+        data_arr = re.split('[\s\|\!]', item['data'])
+        if 'Description' not in item['header'] and len(data_arr) > 1:
+            sub_count = 0
+            for sub_item in data_arr:
+                current_line['C' + str(count)] = [
+                    item['header'] + '_' + str(sub_count) ,
+                    sub_item,
+                ]
+                count += 1
+                sub_count += 1
+        else:
             current_line['C' + str(count)] = [
                 item['header'],
                 item['data'],
             ]
             count += 1
+
+        return count
+
+    current_line_index = table_data[0]['line_index']
+    current_line = {}
+    count = 1
+    count = process_item_data(table_data[0], current_line, count)
+    line_list = []
+
+    for item in table_data[1:]:
+        if item['line_index'] == current_line_index:
+            count = process_item_data(item, current_line, count)
         else:
             line_list.append(current_line)
             current_line = {}
             count = 1
+            count = process_item_data(item, current_line, count)
             current_line_index = item['line_index']
 
     if count != 1:
         line_list.append(current_line)
+
+    print(json.dumps(line_list, indent=2))
+    return
 
     res = [ None ] * len(line_list)
     threads = [ threading.Thread(
