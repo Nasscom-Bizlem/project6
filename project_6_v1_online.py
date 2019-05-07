@@ -13,7 +13,12 @@ SELECTED_LABEL = 'http://bizlem.io/PurchaseOrderProcessing#'
 
 def request_header_line(line_list, res, line_index):
     try:
-        print(data)
+        data = json.dumps({ 
+            'user_name': 'carrotrule_xyz.com',
+            'project_name': 'HeaderRuleEngine',
+            'Rule_Engine': 'HeaderRule',
+            'RawJson': line_list[line_index],
+        }, indent=2)
         r = requests.post(HEADER_URL, data=data)
         res[line_index] = r.json()
     except Exception as e:
@@ -30,18 +35,19 @@ def p6_process_json(path, verbose=True):
 
     def process_item_data(item, current_line, count):
         data_arr = re.split('[\s\|\!]', item['data'])
+        header = 'Data_No_Header' if item['type'] == 'Data no header' else item['header']
         if 'Description' not in item['header'] and len(data_arr) > 1:
             sub_count = 0
             for sub_item in data_arr:
-                current_line['C' + str(count)] = [
-                    item['header'] + '_' + str(sub_count) ,
+                current_line['c' + str(count)] = [
+                    header + '_' + str(sub_count) ,
                     sub_item,
                 ]
                 count += 1
                 sub_count += 1
         else:
-            current_line['C' + str(count)] = [
-                item['header'],
+            current_line['c' + str(count)] = [
+                header,
                 item['data'],
             ]
             count += 1
@@ -67,8 +73,15 @@ def p6_process_json(path, verbose=True):
     if count != 1:
         line_list.append(current_line)
 
-    print(json.dumps(line_list, indent=2))
-    return
+    output = []
+    for line in line_list:
+        output.append({ 
+            'RawJson': line,
+            'user_name': 'carrotrule_xyz.com',
+            'project_name': 'HeaderRuleEngine',
+            'Rule_Engine': 'HeaderRule',        
+        })
+    # return output
 
     res = [ None ] * len(line_list)
     threads = [ threading.Thread(
