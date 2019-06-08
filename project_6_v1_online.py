@@ -18,9 +18,16 @@ def request_header_line(line_list, res, line_index):
             'project_name': 'HeaderRuleEngine',
             'Rule_Engine': 'HeaderRule',
             'RawJson': line_list[line_index],
-        }, indent=2)
+        })
         r = requests.post(HEADER_URL, data=data)
         res[line_index] = r.json()
+    except Exception as e:
+        traceback.print_exc()
+
+def request_all_lines(data):
+    try:
+        r = requests.post(HEADER_URL, data=json.dumps(data))
+        return r.json()
     except Exception as e:
         traceback.print_exc()
 
@@ -73,24 +80,25 @@ def p6_process_json(path, verbose=True):
     if count != 1:
         line_list.append(current_line)
 
-    output = []
+    api_input = []
     for line in line_list:
-        output.append({ 
+        api_input.append({ 
             'RawJson': line,
             'user_name': 'carrotrule_xyz.com',
             'project_name': 'HeaderRuleEngine',
             'Rule_Engine': 'HeaderRule',        
         })
-    # return output
 
-    res = [ None ] * len(line_list)
-    threads = [ threading.Thread(
-        target=request_header_line,
-        args=(line_list, res, line_index),
-    ) for line_index in range(len(line_list)) ]
+    # res = [ None ] * len(line_list)
+    # threads = [ threading.Thread(
+    #     target=request_header_line,
+    #     args=(line_list, res, line_index),
+    # ) for line_index in range(len(line_list)) ]
 
-    for thread in threads: thread.start()
-    for thread in threads: thread.join()
+    # for thread in threads: thread.start()
+    # for thread in threads: thread.join()
+
+    res = request_all_lines(api_input)
 
     return res
 
